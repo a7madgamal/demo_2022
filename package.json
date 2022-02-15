@@ -17,10 +17,12 @@
     "web-vitals": "^2.1.0"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "concurrently \"yarn server\" \"react-scripts start\"",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "format": "yarn prettier --write .",
+    "server": "json-server --watch server/db.json --port 3004"
   },
   "eslintConfig": {
     "extends": [
@@ -39,5 +41,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "concurrently": "^7.0.0",
+    "json-server": "^0.17.0",
+    "prettier": "2.5.1"
   }
 }
