@@ -1,27 +1,19 @@
 import { FC } from 'react'
 import styled, { css } from 'styled-components'
-import dayjs from 'dayjs'
+import { SlotDayContainer } from './CompaniesContainer'
 
 import { SlotCard } from './SlotCard'
 
-type SlotCardData = {
-  startTime: dayjs.Dayjs
-  endTime: dayjs.Dayjs
-  isSelected: boolean
-  isSelectable: boolean
-}
-
-type SlotDayContainer = { dayTitle: string; daySlots: SlotCardData[] }
-
 type Props = {
+  companyId: string
   slots: SlotDayContainer[]
 }
 
-export const SlotsSelector: FC<Props> = ({ slots }) => {
+export const SlotsSelector: FC<Props> = ({ slots, companyId }) => {
   return (
     <SlotsSelectorWrapper>
       {slots.map(({ dayTitle, daySlots }) => (
-        <DayContainer>
+        <DayContainer key={dayTitle}>
           <DayTitle>{dayTitle}</DayTitle>
           {daySlots.map(({ startTime, endTime, isSelected, isSelectable }) => (
             <SlotCard
@@ -30,7 +22,13 @@ export const SlotsSelector: FC<Props> = ({ slots }) => {
               isSelected={isSelected}
               isSelectable={isSelectable}
               onClick={() => {
-                console.log({ startTime, endTime, isSelected, isSelectable })
+                console.log({
+                  companyId,
+                  startTime,
+                  endTime,
+                  isSelected,
+                  isSelectable,
+                })
               }}
             ></SlotCard>
           ))}
@@ -41,6 +39,8 @@ export const SlotsSelector: FC<Props> = ({ slots }) => {
 }
 
 const DayContainer = styled.li`
+  display: flex;
+  flex-direction: column;
   font-size: 14px;
   padding: 4px;
 `
@@ -52,7 +52,12 @@ const DayTitle = styled.span`
 
 const SlotsSelectorWrapper = styled.ul<{}>(
   () => css`
+    margin: 0;
+    padding: 0;
+    text-indent: 0;
+    list-style-type: none;
     padding: 10px;
+    min-height: 400px;
     overflow-y: auto;
   `
 )
