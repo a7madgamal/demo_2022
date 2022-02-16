@@ -19,7 +19,6 @@ export type CompanyAction =
   | {
       type: CompanyActionTypes.ReserveTimeSlot
       payload: {
-        slotKey: string
         companyId: string
         startTime: string
         endTime: string
@@ -42,7 +41,7 @@ const generateSlotsPerDay = (
     const datea = new Date(a.start_time)
     const dateb = new Date(b.start_time)
 
-    // @ts-ignore
+    // @ts-ignore sorry TS but this works 🤷🏻‍♂️
     return datea - dateb
   })
 

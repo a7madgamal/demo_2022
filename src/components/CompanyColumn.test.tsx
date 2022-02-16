@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import { SlotsPerDay } from './CompaniesContainer'
 import { CompanyColumn } from './CompanyColumn'
 
-test('renders loader', () => {
+test('renders company column', () => {
   const slotsPerDay: SlotsPerDay[] = [
     {
       dayTitle: 'Monday',
@@ -40,4 +40,5 @@ test('renders loader', () => {
   expect(screen.getByText(/08:00 - 09:30/i)).toBeInTheDocument()
   expect(screen.getByText(/09:30 - 10:00/i)).toBeInTheDocument()
   expect(screen.getByText(/Monday/i)).toBeInTheDocument()
+  expect(screen.getByText(/Test Inc./i)).toBeInTheDocument()
 })

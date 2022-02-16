@@ -1,5 +1,5 @@
 enum CompanyType {
-  'company' = 'company',
+  Company = 'company',
 }
 
 type TimeSlot = {
@@ -10,6 +10,6 @@ type TimeSlot = {
 export type APIGetCompany = {
   id: number
   name: string
-  type: CompanyType.company
+  type: CompanyType.Company
   time_slots: TimeSlot[]
 }

@@ -18,20 +18,18 @@ export const SlotCard: FC<Props> = ({
   isSelected,
   isSelectable,
   onClick,
-}) => {
-  return (
-    <SlotCardWrapper
-      isSelected={isSelected}
-      isSelectable={isSelectable}
-      onClick={onClick}
-    >
-      {renderDateRangeAsHour(
-        parseISODateString(startTime),
-        parseISODateString(endTime)
-      )}
-    </SlotCardWrapper>
-  )
-}
+}) => (
+  <SlotCardWrapper
+    isSelected={isSelected}
+    isSelectable={isSelectable}
+    onClick={onClick}
+  >
+    {renderDateRangeAsHour(
+      parseISODateString(startTime),
+      parseISODateString(endTime)
+    )}
+  </SlotCardWrapper>
+)
 
 const SlotCardWrapper = styled.span<{
   isSelected: boolean

@@ -42,7 +42,7 @@ export const SlotsSelector: FC<Props> = ({
                       if (isSelectable) {
                         dispatch({
                           type: CompanyActionTypes.ReserveTimeSlot,
-                          payload: { companyId, slotKey, startTime, endTime },
+                          payload: { companyId, startTime, endTime },
                         })
                       }
                     }
