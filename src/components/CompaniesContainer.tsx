@@ -1,34 +1,41 @@
-import { FC, useEffect, useState } from 'react'
+import { FC, useEffect, useReducer } from 'react'
 import styled, { css } from 'styled-components'
-import dayjs from 'dayjs'
 
 import { CompanyColumn } from './CompanyColumn'
 import { APIGetCompany } from '../types/API/companies'
-import { parseISODateString } from '../utils/time'
+import {
+  companiesReducer,
+  CompanyActionTypes,
+  initialCompaniesState,
+} from '../state/companies'
+import { parseISODateString, renderDateRangeAsHour } from '../utils/time'
 
 type SlotCardData = {
-  startTime: dayjs.Dayjs
-  endTime: dayjs.Dayjs
+  startTime: string
+  endTime: string
   isSelected: boolean
   isSelectable: boolean
+  slotKey: string
 }
 
-export type SlotDayContainer = { dayTitle: string; daySlots: SlotCardData[] }
+export type SlotsPerDay = {
+  dayTitle: string
+  daySlots: SlotCardData[]
+  dayKey: string
+}
 
 type Props = {
   companyIds: string[]
 }
 
-type CompanyListData = {
+export type CompanyListData = {
   companyId: string
   companyName: string
-  slots: SlotDayContainer[]
+  slotsPerDay: SlotsPerDay[]
 }
 
 export const CompaniesContainer: FC<Props> = ({ companyIds }) => {
-  const [companyList, setCompanyList] = useState<CompanyListData[] | undefined>(
-    undefined
-  )
+  const [state, dispatch] = useReducer(companiesReducer, initialCompaniesState)
 
   useEffect(() => {
     const fetchCompanyList = async () => {
@@ -42,23 +49,7 @@ export const CompaniesContainer: FC<Props> = ({ companyIds }) => {
         res.map((r) => r.json())
       )) as APIGetCompany[]
 
-      setCompanyList(
-        jsonArray.map((company) => ({
-          companyId: `${company.id}`,
-          companyName: company.name,
-          slots: company.time_slots.map((timeSlot) => ({
-            dayTitle: 'tmp day',
-            daySlots: [
-              {
-                startTime: parseISODateString(timeSlot.start_time),
-                endTime: parseISODateString(timeSlot.end_time),
-                isSelected: false,
-                isSelectable: true,
-              },
-            ],
-          })),
-        }))
-      )
+      dispatch({ type: CompanyActionTypes.LoadData, payload: jsonArray })
     }
 
     fetchCompanyList()
@@ -66,15 +57,31 @@ export const CompaniesContainer: FC<Props> = ({ companyIds }) => {
 
   return (
     <CompaniesContainerWrapper>
-      {companyList ? (
-        companyList.map(({ companyId, companyName, slots }) => (
-          <CompanyColumn
-            key={companyId}
-            companyId={companyId}
-            companyName={companyName}
-            slots={slots}
-          ></CompanyColumn>
-        ))
+      {state ? (
+        state.map(({ companyId, companyName, slotsPerDay }) => {
+          let selectedSlot: string | undefined = undefined
+
+          slotsPerDay.forEach(({ daySlots }) => {
+            const result = daySlots.find((slots) => slots.isSelected)
+            if (result) {
+              selectedSlot = renderDateRangeAsHour(
+                parseISODateString(result.startTime),
+                parseISODateString(result.endTime)
+              )
+            }
+          })
+
+          return (
+            <CompanyColumn
+              key={companyId}
+              companyId={companyId}
+              companyName={companyName}
+              slotsPerDay={slotsPerDay}
+              dispatch={dispatch}
+              selectedSlot={selectedSlot}
+            ></CompanyColumn>
+          )
+        })
       ) : (
         <div>loading...</div>
       )}
@@ -82,12 +89,13 @@ export const CompaniesContainer: FC<Props> = ({ companyIds }) => {
   )
 }
 
-const CompaniesContainerWrapper = styled.div<{}>(
+const CompaniesContainerWrapper = styled.div(
   () => css`
     display: flex;
     flex-direction: row;
+    justify-content: center;
     max-height: 90vh;
-    padding: 10px;
-    /* background-color: lightgreen; */
+    padding: 8px;
+    width: 100%;
   `
 )

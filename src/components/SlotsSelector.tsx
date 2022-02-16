@@ -1,37 +1,56 @@
-import { FC } from 'react'
-import styled, { css } from 'styled-components'
-import { SlotDayContainer } from './CompaniesContainer'
+import { Dispatch, FC } from 'react'
+import styled from 'styled-components'
+import { CompanyAction, CompanyActionTypes } from '../state/companies'
+import { SlotsPerDay } from './CompaniesContainer'
 
 import { SlotCard } from './SlotCard'
 
 type Props = {
   companyId: string
-  slots: SlotDayContainer[]
+  slotsPerDay: SlotsPerDay[]
+  dispatch: Dispatch<CompanyAction>
+  selectedSlot: string | undefined
 }
 
-export const SlotsSelector: FC<Props> = ({ slots, companyId }) => {
+export const SlotsSelector: FC<Props> = ({
+  slotsPerDay,
+  companyId,
+  dispatch,
+  selectedSlot,
+}) => {
   return (
     <SlotsSelectorWrapper>
-      {slots.map(({ dayTitle, daySlots }) => (
-        <DayContainer key={dayTitle}>
+      {slotsPerDay.map(({ dayTitle, daySlots, dayKey }) => (
+        <DayContainer key={dayKey}>
           <DayTitle>{dayTitle}</DayTitle>
-          {daySlots.map(({ startTime, endTime, isSelected, isSelectable }) => (
-            <SlotCard
-              startTime={startTime}
-              endTime={endTime}
-              isSelected={isSelected}
-              isSelectable={isSelectable}
-              onClick={() => {
-                console.log({
-                  companyId,
-                  startTime,
-                  endTime,
-                  isSelected,
-                  isSelectable,
-                })
-              }}
-            ></SlotCard>
-          ))}
+          {daySlots.map(
+            ({ startTime, endTime, isSelected, isSelectable, slotKey }) => (
+              <SlotCard
+                key={slotKey}
+                startTime={startTime}
+                endTime={endTime}
+                isSelected={isSelected}
+                isSelectable={selectedSlot ? isSelected : isSelectable}
+                onClick={() => {
+                  if (isSelected) {
+                    dispatch({
+                      type: CompanyActionTypes.UnreserveTimeSlot,
+                      payload: { companyId, startTime, endTime },
+                    })
+                  } else {
+                    if (!selectedSlot) {
+                      if (isSelectable) {
+                        dispatch({
+                          type: CompanyActionTypes.ReserveTimeSlot,
+                          payload: { companyId, slotKey, startTime, endTime },
+                        })
+                      }
+                    }
+                  }
+                }}
+              />
+            )
+          )}
         </DayContainer>
       ))}
     </SlotsSelectorWrapper>
@@ -48,16 +67,13 @@ const DayTitle = styled.span`
   font-size: 14px;
   font-weight: bold;
   margin: 4px;
+  text-align: center;
 `
 
-const SlotsSelectorWrapper = styled.ul<{}>(
-  () => css`
-    margin: 0;
-    padding: 0;
-    text-indent: 0;
-    list-style-type: none;
-    padding: 10px;
-    min-height: 400px;
-    overflow-y: auto;
-  `
-)
+const SlotsSelectorWrapper = styled.ul`
+  margin: 0;
+  text-indent: 0;
+  list-style-type: none;
+  padding: 8px;
+  overflow-y: auto;
+`
